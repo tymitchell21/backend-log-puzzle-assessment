@@ -19,7 +19,7 @@ Here's what a puzzle url looks like:
 import os
 import re
 import sys
-import urllib
+import urllib as urllib
 import argparse
 
 
@@ -29,7 +29,18 @@ def read_urls(filename):
     Screens out duplicate urls and returns the urls sorted into
     increasing order."""
     # +++your code here+++
-    pass
+    def after_dash(x):
+        result = re.findall('(?<=-)\w+', x)[-1]
+        return result
+        
+    with open(filename, 'r') as f:
+        file_str = f.read()
+        puzzle_url = re.findall(r'GET (.*?) HTTP', file_str)
+        full_urls = ['http://code.google.com' + url for url in puzzle_url]
+        del_dupl = list(set(full_urls))
+        puzzle_urls = filter(lambda k: 'puzzle' in k, del_dupl)
+        sorted_urls = sorted(list(set(puzzle_urls)), key=after_dash)
+    return sorted_urls
 
 
 def download_images(img_urls, dest_dir):
@@ -41,7 +52,16 @@ def download_images(img_urls, dest_dir):
     Creates the directory if necessary.
     """
     # +++your code here+++
-    pass
+    if not os.path.exists(str(dest_dir)):
+        os.mkdir(dest_dir)
+    print('Retreiving...')
+    with open(str(dest_dir) + "/index.html", 'w') as file:
+        file.write("<html><body>")
+        for index, url in enumerate(img_urls):
+            urllib.urlretrieve(url, filename = dest_dir + '/img' + str(index) + ".jpg")
+            file.write("<img src='img" + str(index) + ".jpg' >")
+        file.write("</body></html>")
+    return
 
 
 def create_parser():
